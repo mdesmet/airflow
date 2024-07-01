@@ -303,19 +303,23 @@ class BaseExecutor(LoggingMixin):
             self.execute_async(key=key, command=command, queue=queue, executor_config=executor_config)
             self.running.add(key)
 
-    def change_state(self, key: TaskInstanceKey, state: TaskInstanceState, info=None) -> None:
+    def change_state(
+        self, key: TaskInstanceKey, state: TaskInstanceState, info=None, remove_running=True
+    ) -> None:
         """
         Change state of the task.
 
-        :param info: Executor information for the task instance
         :param key: Unique key for the task instance
         :param state: State to set for the task.
+        :param info: Executor information for the task instance
+        :param remove_running: Whether or not to remove the TI key from running set
         """
         self.log.debug("Changing state: %s", key)
-        try:
-            self.running.remove(key)
-        except KeyError:
-            self.log.debug("Could not find key: %s", key)
+        if remove_running:
+            try:
+                self.running.remove(key)
+            except KeyError:
+                self.log.debug("Could not find key: %s", key)
         self.event_buffer[key] = state, info
 
     def fail(self, key: TaskInstanceKey, info=None) -> None:
@@ -344,6 +348,15 @@ class BaseExecutor(LoggingMixin):
         :param key: Unique key for the task instance
         """
         self.change_state(key, TaskInstanceState.QUEUED, info)
+
+    def running_state(self, key: TaskInstanceKey, info=None) -> None:
+        """
+        Set running state for the event.
+
+        :param info: Executor information for the task instance
+        :param key: Unique key for the task instance
+        """
+        self.change_state(key, TaskInstanceState.RUNNING, info, remove_running=False)
 
     def get_event_buffer(self, dag_ids=None) -> dict[TaskInstanceKey, EventBufferValueType]:
         """
@@ -488,7 +501,8 @@ class BaseExecutor(LoggingMixin):
         )
 
     def send_callback(self, request: CallbackRequest) -> None:
-        """Send callback for execution.
+        """
+        Send callback for execution.
 
         Provides a default implementation which sends the callback to the `callback_sink` object.
 
@@ -500,7 +514,8 @@ class BaseExecutor(LoggingMixin):
 
     @staticmethod
     def get_cli_commands() -> list[GroupCommand]:
-        """Vends CLI commands to be included in Airflow CLI.
+        """
+        Vends CLI commands to be included in Airflow CLI.
 
         Override this method to expose commands via Airflow CLI to manage this executor. This can
         be commands to setup/teardown the executor, inspect state, etc.
@@ -510,7 +525,8 @@ class BaseExecutor(LoggingMixin):
 
     @classmethod
     def _get_parser(cls) -> argparse.ArgumentParser:
-        """Generate documentation; used by Sphinx argparse.
+        """
+        Generate documentation; used by Sphinx argparse.
 
         :meta private:
         """
