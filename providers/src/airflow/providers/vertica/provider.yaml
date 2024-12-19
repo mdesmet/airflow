@@ -54,7 +54,7 @@ versions:
   - 1.0.0
 
 dependencies:
-  - apache-airflow>=2.8.0
+  - apache-airflow>=2.9.0
   - apache-airflow-providers-common-sql>=1.20.0
   - vertica-python>=0.6.0
 
@@ -63,11 +63,6 @@ integrations:
     external-doc-url: https://www.vertica.com/
     logo: /integration-logos/vertica/Vertica.png
     tags: [software]
-
-operators:
-  - integration-name: Vertica
-    python-modules:
-      - airflow.providers.vertica.operators.vertica
 
 hooks:
   - integration-name: Vertica

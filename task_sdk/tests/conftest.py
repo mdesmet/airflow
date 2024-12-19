@@ -19,7 +19,7 @@ from __future__ import annotations
 import logging
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING, NoReturn
+from typing import TYPE_CHECKING, Any, NoReturn, Protocol
 
 import pytest
 
@@ -29,7 +29,11 @@ pytest_plugins = "tests_common.pytest_plugin"
 os.environ["_AIRFLOW_SKIP_DB_TESTS"] = "true"
 
 if TYPE_CHECKING:
+    from datetime import datetime
+
     from structlog.typing import EventDict, WrappedLogger
+
+    from airflow.sdk.api.datamodels._generated import TIRunContext
 
 
 @pytest.hookimpl()
@@ -47,6 +51,12 @@ def pytest_configure(config: pytest.Config) -> None:
 
     # Always skip looking for tests in these folders!
     config.addinivalue_line("norecursedirs", "tests/test_dags")
+
+
+@pytest.hookimpl(tryfirst=True)
+def pytest_runtest_setup(item):
+    if next(item.iter_markers(name="db_test"), None):
+        pytest.fail("Task SDK tests must not use database")
 
 
 class LogCapture:
@@ -103,3 +113,104 @@ def captured_logs(request):
         yield cap.entries
     finally:
         structlog.configure(processors=cur_processors)
+
+
+@pytest.fixture(autouse=True, scope="session")
+def _disable_ol_plugin():
+    # The OpenLineage plugin imports setproctitle, and that now causes (C) level thread calls, which on Py
+    # 3.12+ issues a warning when os.fork happens. So for this plugin we disable it
+
+    # And we load plugins when setting the priority_weight field
+    import airflow.plugins_manager
+
+    old = airflow.plugins_manager.plugins
+
+    assert old is None, "Plugins already loaded, too late to stop them being loaded!"
+
+    airflow.plugins_manager.plugins = []
+
+    yield
+
+    airflow.plugins_manager.plugins = None
+
+
+class MakeTIContextCallable(Protocol):
+    def __call__(
+        self,
+        dag_id: str = ...,
+        run_id: str = ...,
+        logical_date: str | datetime = ...,
+        data_interval_start: str | datetime = ...,
+        data_interval_end: str | datetime = ...,
+        start_date: str | datetime = ...,
+        run_type: str = ...,
+    ) -> TIRunContext: ...
+
+
+class MakeTIContextDictCallable(Protocol):
+    def __call__(
+        self,
+        dag_id: str = ...,
+        run_id: str = ...,
+        logical_date: str = ...,
+        data_interval_start: str | datetime = ...,
+        data_interval_end: str | datetime = ...,
+        start_date: str | datetime = ...,
+        run_type: str = ...,
+    ) -> dict[str, Any]: ...
+
+
+@pytest.fixture
+def make_ti_context() -> MakeTIContextCallable:
+    """Factory for creating TIRunContext objects."""
+    from airflow.sdk.api.datamodels._generated import DagRun, TIRunContext
+
+    def _make_context(
+        dag_id: str = "test_dag",
+        run_id: str = "test_run",
+        logical_date: str | datetime = "2024-12-01T01:00:00Z",
+        data_interval_start: str | datetime = "2024-12-01T00:00:00Z",
+        data_interval_end: str | datetime = "2024-12-01T01:00:00Z",
+        start_date: str | datetime = "2024-12-01T01:00:00Z",
+        run_type: str = "manual",
+    ) -> TIRunContext:
+        return TIRunContext(
+            dag_run=DagRun(
+                dag_id=dag_id,
+                run_id=run_id,
+                logical_date=logical_date,  # type: ignore
+                data_interval_start=data_interval_start,  # type: ignore
+                data_interval_end=data_interval_end,  # type: ignore
+                start_date=start_date,  # type: ignore
+                run_type=run_type,  # type: ignore
+            )
+        )
+
+    return _make_context
+
+
+@pytest.fixture
+def make_ti_context_dict(make_ti_context: MakeTIContextCallable) -> MakeTIContextDictCallable:
+    """Factory for creating context dictionaries suited for API Server response."""
+
+    def _make_context_dict(
+        dag_id: str = "test_dag",
+        run_id: str = "test_run",
+        logical_date: str | datetime = "2024-12-01T00:00:00Z",
+        data_interval_start: str | datetime = "2024-12-01T00:00:00Z",
+        data_interval_end: str | datetime = "2024-12-01T01:00:00Z",
+        start_date: str | datetime = "2024-12-01T00:00:00Z",
+        run_type: str = "manual",
+    ) -> dict[str, Any]:
+        context = make_ti_context(
+            dag_id=dag_id,
+            run_id=run_id,
+            logical_date=logical_date,
+            data_interval_start=data_interval_start,
+            data_interval_end=data_interval_end,
+            start_date=start_date,
+            run_type=run_type,
+        )
+        return context.model_dump(exclude_unset=True, mode="json")
+
+    return _make_context_dict

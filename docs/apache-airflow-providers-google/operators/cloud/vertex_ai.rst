@@ -573,16 +573,6 @@ To get a pipeline job list you can use
 Interacting with Generative AI
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To generate a prediction via language model you can use
-:class:`~airflow.providers.google.cloud.operators.vertex_ai.generative_model.TextGenerationModelPredictOperator`.
-The operator returns the model's response in :ref:`XCom <concepts:xcom>` under ``model_response`` key.
-
-.. exampleinclude:: /../../providers/tests/system/google/cloud/vertex_ai/example_vertex_ai_generative_model.py
-    :language: python
-    :dedent: 4
-    :start-after: [START how_to_cloud_vertex_ai_text_generation_model_predict_operator]
-    :end-before: [END how_to_cloud_vertex_ai_text_generation_model_predict_operator]
-
 To generate text embeddings you can use
 :class:`~airflow.providers.google.cloud.operators.vertex_ai.generative_model.TextEmbeddingModelGetEmbeddingsOperator`.
 The operator returns the model's response in :ref:`XCom <concepts:xcom>` under ``model_response`` key.
@@ -653,6 +643,38 @@ The operator returns the cached content response in :ref:`XCom <concepts:xcom>` 
     :dedent: 4
     :start-after: [START how_to_cloud_vertex_ai_generate_from_cached_content_operator]
     :end-before: [END how_to_cloud_vertex_ai_generate_from_cached_content_operator]
+
+Interacting with Vertex AI Feature Store
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To get a feature view sync job you can use
+:class:`~airflow.providers.google.cloud.operators.vertex_ai.feature_store.GetFeatureViewSyncOperator`.
+The operator returns sync job results in :ref:`XCom <concepts:xcom>` under ``return_value`` key.
+
+.. exampleinclude:: /../../providers/tests/system/google/cloud/vertex_ai/example_vertex_ai_feature_store.py
+    :language: python
+    :dedent: 4
+    :start-after: [START how_to_cloud_vertex_ai_feature_store_get_feature_view_sync_operator]
+    :end-before: [END how_to_cloud_vertex_ai_feature_store_get_feature_view_sync_operator]
+
+To sync a feature view you can use
+:class:`~airflow.providers.google.cloud.operators.vertex_ai.feature_store.SyncFeatureViewOperator`.
+The operator returns the sync job name in :ref:`XCom <concepts:xcom>` under ``return_value`` key.
+
+.. exampleinclude:: /../../providers/tests/system/google/cloud/vertex_ai/example_vertex_ai_feature_store.py
+    :language: python
+    :dedent: 4
+    :start-after: [START how_to_cloud_vertex_ai_feature_store_sync_feature_view_operator]
+    :end-before: [END how_to_cloud_vertex_ai_feature_store_sync_feature_view_operator]
+
+To check if Feature View Sync succeeded you can use
+:class:`~airflow.providers.google.cloud.sensors.vertex_ai.FeatureViewSyncSensor`.
+
+.. exampleinclude:: /../../providers/tests/system/google/cloud/vertex_ai/example_vertex_ai_feature_store.py
+    :language: python
+    :dedent: 4
+    :start-after: [START how_to_cloud_vertex_ai_feature_store_feature_view_sync_sensor]
+    :end-before: [END how_to_cloud_vertex_ai_feature_store_feature_view_sync_sensor]
 
 Reference
 ^^^^^^^^^
