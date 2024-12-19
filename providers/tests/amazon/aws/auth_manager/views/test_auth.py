@@ -24,11 +24,7 @@ from flask import session, url_for
 from airflow.exceptions import AirflowException
 from airflow.www import app as application
 
-from tests_common.test_utils.compat import AIRFLOW_V_2_9_PLUS
 from tests_common.test_utils.config import conf_vars
-
-pytestmark = pytest.mark.skipif(not AIRFLOW_V_2_9_PLUS, reason="Test requires Airflow 2.9+")
-
 
 SAML_METADATA_URL = "/saml/metadata"
 SAML_METADATA_PARSED = {

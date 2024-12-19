@@ -67,7 +67,7 @@ versions:
   - 1.0.0
 
 dependencies:
-  - apache-airflow>=2.8.0
+  - apache-airflow>=2.9.0
   - apache-airflow-providers-common-sql>=1.20.0
   - psycopg2-binary>=2.9.4
   - asyncpg>=0.30.0
@@ -84,11 +84,6 @@ integrations:
       - /docs/apache-airflow-providers-postgres/operators/postgres_operator_howto_guide.rst
     logo: /integration-logos/postgres/Postgres.png
     tags: [software]
-
-operators:
-  - integration-name: PostgreSQL
-    python-modules:
-      - airflow.providers.postgres.operators.postgres
 
 hooks:
   - integration-name: PostgreSQL

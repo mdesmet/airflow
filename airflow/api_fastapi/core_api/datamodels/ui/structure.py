@@ -28,18 +28,21 @@ class EdgeResponse(BaseModel):
     label: str | None = None
     source_id: str
     target_id: str
+    is_source_asset: bool | None = None
 
 
 class NodeResponse(BaseModel):
     """Node serializer for responses."""
 
     children: list[NodeResponse] | None = None
-    id: str | None
+    id: str
     is_mapped: bool | None = None
-    label: str | None = None
+    label: str
     tooltip: str | None = None
     setup_teardown_type: Literal["setup", "teardown"] | None = None
-    type: Literal["join", "sensor", "task", "task_group"]
+    type: Literal["join", "task", "asset-condition", "asset", "asset-alias", "dag", "sensor", "trigger"]
+    operator: str | None = None
+    asset_condition_type: Literal["or-gate", "and-gate"] | None = None
 
 
 class StructureDataResponse(BaseModel):

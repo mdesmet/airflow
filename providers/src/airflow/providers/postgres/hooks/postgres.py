@@ -18,7 +18,6 @@
 from __future__ import annotations
 
 import os
-import warnings
 from collections.abc import Iterable
 from contextlib import closing
 from copy import deepcopy
@@ -27,11 +26,10 @@ from typing import TYPE_CHECKING, Any, Union
 import psycopg2
 import psycopg2.extensions
 import psycopg2.extras
-from deprecated import deprecated
 from psycopg2.extras import DictCursor, NamedTupleCursor, RealDictCursor
 from sqlalchemy.engine import URL
 
-from airflow.exceptions import AirflowProviderDeprecationWarning
+from airflow.exceptions import AirflowException
 from airflow.providers.common.sql.hooks.sql import DbApiHook
 
 if TYPE_CHECKING:
@@ -88,18 +86,21 @@ class PostgresHook(DbApiHook):
     hook_name = "Postgres"
     supports_autocommit = True
     supports_executemany = True
+    ignored_extra_options = {
+        "iam",
+        "redshift",
+        "redshift-serverless",
+        "cursor",
+        "cluster-identifier",
+        "workgroup-name",
+        "aws_conn_id",
+        "sqlalchemy_scheme",
+        "sqlalchemy_query",
+    }
 
     def __init__(
         self, *args, options: str | None = None, enable_log_db_messages: bool = False, **kwargs
     ) -> None:
-        if "schema" in kwargs:
-            warnings.warn(
-                'The "schema" arg has been renamed to "database" as it contained the database name.'
-                'Please use "database" to set the database name.',
-                AirflowProviderDeprecationWarning,
-                stacklevel=2,
-            )
-            kwargs["database"] = kwargs["schema"]
         super().__init__(*args, **kwargs)
         self.conn: connection = None
         self.database: str | None = kwargs.pop("database", None)
@@ -107,30 +108,11 @@ class PostgresHook(DbApiHook):
         self.enable_log_db_messages = enable_log_db_messages
 
     @property
-    @deprecated(
-        reason=(
-            'The "schema" variable has been renamed to "database" as it contained the database name.'
-            'Please use "database" to get the database name.'
-        ),
-        category=AirflowProviderDeprecationWarning,
-    )
-    def schema(self):
-        return self.database
-
-    @schema.setter
-    @deprecated(
-        reason=(
-            'The "schema" variable has been renamed to "database" as it contained the database name.'
-            'Please use "database" to set the database name.'
-        ),
-        category=AirflowProviderDeprecationWarning,
-    )
-    def schema(self, value):
-        self.database = value
-
-    @property
     def sqlalchemy_url(self) -> URL:
-        conn = self.get_connection(self.get_conn_id())
+        conn = self.connection
+        query = conn.extra_dejson.get("sqlalchemy_query", {})
+        if not isinstance(query, dict):
+            raise AirflowException("The parameter 'sqlalchemy_query' must be of type dict!")
         return URL.create(
             drivername="postgresql",
             username=conn.login,
@@ -138,6 +120,7 @@ class PostgresHook(DbApiHook):
             host=conn.host,
             port=conn.port,
             database=self.database or conn.schema,
+            query=query,
         )
 
     def _get_cursor(self, raw_cursor: str) -> CursorType:
@@ -176,15 +159,7 @@ class PostgresHook(DbApiHook):
             conn_args["options"] = self.options
 
         for arg_name, arg_val in conn.extra_dejson.items():
-            if arg_name not in [
-                "iam",
-                "redshift",
-                "redshift-serverless",
-                "cursor",
-                "cluster-identifier",
-                "workgroup-name",
-                "aws_conn_id",
-            ]:
+            if arg_name not in self.ignored_extra_options:
                 conn_args[arg_name] = arg_val
 
         self.conn = psycopg2.connect(**conn_args)
