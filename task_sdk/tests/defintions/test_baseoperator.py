@@ -29,25 +29,6 @@ from airflow.task.priority_strategy import _DownstreamPriorityWeightStrategy, _U
 DEFAULT_DATE = datetime(2016, 1, 1, tzinfo=timezone.utc)
 
 
-@pytest.fixture(autouse=True, scope="module")
-def _disable_ol_plugin():
-    # The OpenLineage plugin imports setproctitle, and that now causes (C) level thread calls, which on Py
-    # 3.12+ issues a warning when os.fork happens. So for this plugin we disable it
-
-    # And we load plugins when setting the priorty_weight field
-    import airflow.plugins_manager
-
-    old = airflow.plugins_manager.plugins
-
-    assert old is None, "Plugins already loaded, too late to stop them being loaded!"
-
-    airflow.plugins_manager.plugins = []
-
-    yield
-
-    airflow.plugins_manager.plugins = None
-
-
 # Essentially similar to airflow.models.baseoperator.BaseOperator
 class FakeOperator(metaclass=BaseOperatorMeta):
     def __init__(self, test_param, params=None, default_args=None):
@@ -230,18 +211,12 @@ class TestBaseOperator:
             assert warning.filename == __file__
 
     def test_setattr_performs_no_custom_action_at_execute_time(self, spy_agency):
-        from airflow.models.xcom_arg import XComArg
-
         op = MockOperator(task_id="test_task")
 
-        op._lock_for_execution = True
-        # TODO: Task-SDK
-        # op_copy = op.prepare_for_execution()
-        op_copy = op
-
-        spy_agency.spy_on(XComArg.apply_upstream_relationship, call_original=False)
+        op_copy = op.prepare_for_execution()
+        spy_agency.spy_on(op._set_xcomargs_dependency, call_original=False)
         op_copy.arg1 = "b"
-        assert XComArg.apply_upstream_relationship.called is False
+        assert op._set_xcomargs_dependency.called is False
 
     def test_upstream_is_set_when_template_field_is_xcomarg(self):
         with DAG("xcomargs_test", schedule=None):

@@ -26,7 +26,7 @@ from enum import Enum
 from typing import Annotated, Any, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ConnectionResponse(BaseModel):
@@ -42,6 +42,17 @@ class ConnectionResponse(BaseModel):
     password: Annotated[str | None, Field(title="Password")] = None
     port: Annotated[int | None, Field(title="Port")] = None
     extra: Annotated[str | None, Field(title="Extra")] = None
+
+
+class DagRunType(str, Enum):
+    """
+    Class with DagRun types.
+    """
+
+    BACKFILL = "backfill"
+    SCHEDULED = "scheduled"
+    MANUAL = "manual"
+    ASSET_TRIGGERED = "asset_triggered"
 
 
 class IntermediateTIState(str, Enum):
@@ -91,6 +102,16 @@ class TIHeartbeatInfo(BaseModel):
     pid: Annotated[int, Field(title="Pid")]
 
 
+class TIRescheduleStatePayload(BaseModel):
+    """
+    Schema for updating TaskInstance to a up_for_reschedule state.
+    """
+
+    state: Annotated[Literal["up_for_reschedule"] | None, Field(title="State")] = "up_for_reschedule"
+    end_date: Annotated[datetime, Field(title="End Date")]
+    reschedule_date: Annotated[datetime, Field(title="Reschedule Date")]
+
+
 class TITargetStatePayload(BaseModel):
     """
     Schema for updating TaskInstance to a target state, excluding terminal and running states.
@@ -114,6 +135,18 @@ class ValidationError(BaseModel):
     loc: Annotated[list[str | int], Field(title="Location")]
     msg: Annotated[str, Field(title="Message")]
     type: Annotated[str, Field(title="Error Type")]
+
+
+class VariablePostBody(BaseModel):
+    """
+    Request body schema for creating variables.
+    """
+
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    value: Annotated[str | None, Field(title="Value")] = None
+    description: Annotated[str | None, Field(title="Description")] = None
 
 
 class VariableResponse(BaseModel):
@@ -147,8 +180,34 @@ class TaskInstance(BaseModel):
     map_index: Annotated[int | None, Field(title="Map Index")] = None
 
 
+class DagRun(BaseModel):
+    """
+    Schema for DagRun model with minimal required fields needed for Runtime.
+    """
+
+    dag_id: Annotated[str, Field(title="Dag Id")]
+    run_id: Annotated[str, Field(title="Run Id")]
+    logical_date: Annotated[datetime, Field(title="Logical Date")]
+    data_interval_start: Annotated[datetime | None, Field(title="Data Interval Start")] = None
+    data_interval_end: Annotated[datetime | None, Field(title="Data Interval End")] = None
+    start_date: Annotated[datetime, Field(title="Start Date")]
+    end_date: Annotated[datetime | None, Field(title="End Date")] = None
+    run_type: DagRunType
+    conf: Annotated[dict[str, Any] | None, Field(title="Conf")] = None
+
+
 class HTTPValidationError(BaseModel):
     detail: Annotated[list[ValidationError] | None, Field(title="Detail")] = None
+
+
+class TIRunContext(BaseModel):
+    """
+    Response schema for TaskInstance run context.
+    """
+
+    dag_run: DagRun
+    variables: Annotated[list[VariableResponse] | None, Field(title="Variables")] = None
+    connections: Annotated[list[ConnectionResponse] | None, Field(title="Connections")] = None
 
 
 class TITerminalStatePayload(BaseModel):

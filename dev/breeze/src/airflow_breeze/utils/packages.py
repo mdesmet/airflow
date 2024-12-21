@@ -51,7 +51,7 @@ from airflow_breeze.utils.run_utils import run_command
 from airflow_breeze.utils.version_utils import remove_local_version_suffix
 from airflow_breeze.utils.versions import get_version_tag, strip_leading_zeros_from_version
 
-MIN_AIRFLOW_VERSION = "2.8.0"
+MIN_AIRFLOW_VERSION = "2.9.0"
 HTTPS_REMOTE = "apache-https-for-providers"
 
 LONG_PROVIDERS_PREFIX = "apache-airflow-providers-"
@@ -554,7 +554,7 @@ def get_provider_details(provider_id: str) -> ProviderPackageDetails:
         provider_description=provider_info["description"],
         dependencies=provider_info["dependencies"],
         versions=provider_info["versions"],
-        excluded_python_versions=provider_info.get("excluded-python-versions") or [],
+        excluded_python_versions=provider_info.get("excluded-python-versions", []),
         plugins=plugins,
         removed=provider_info["state"] == "removed",
     )
