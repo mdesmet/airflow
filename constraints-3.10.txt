@@ -1,6 +1,6 @@
 
 #
-# This constraints file was automatically generated on 2026-03-28T22:07:16.269509
+# This constraints file was automatically generated on 2026-03-29T03:52:57.478127
 # via `uv pip install --resolution highest` for the "main" branch of Airflow.
 # This variant of constraints install uses the HEAD of the branch version for 'apache-airflow' but installs
 # the providers from PIP-released packages at the moment of the constraint generation.
@@ -286,7 +286,7 @@ grpcio-status==1.78.0
 grpcio-tools==1.78.0
 grpcio==1.78.0
 gssapi==1.11.1
-gunicorn==25.0.3
+gunicorn==25.2.0
 h11==0.16.0
 h2==4.3.0
 hdfs==2.7.3
@@ -584,7 +584,7 @@ universal_pathlib==0.3.10
 uritemplate==4.2.0
 urllib3==2.6.3
 uuid6==2025.0.1
-uv==0.11.0
+uv==0.11.1
 uvicorn==0.42.0
 uvloop==0.22.1
 validators==0.35.0
