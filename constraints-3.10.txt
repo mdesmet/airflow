@@ -1,6 +1,6 @@
 
 #
-# This constraints file was automatically generated on 2026-04-01T04:29:42.381838
+# This constraints file was automatically generated on 2026-04-02T06:30:26.348677
 # via `uv pip install --resolution highest` for the "main" branch of Airflow.
 # This variant of constraints install uses the HEAD of the branch version for 'apache-airflow' but installs
 # the providers from PIP-released packages at the moment of the constraint generation.
@@ -71,7 +71,7 @@ aiobotocore==3.3.0
 aiofiles==24.1.0
 aiohappyeyeballs==2.6.1
 aiohttp-cors==0.8.1
-aiohttp==3.13.3
+aiohttp==3.13.4
 aioitertools==0.13.0
 aiomysql==0.3.2
 aiosignal==1.4.0
@@ -269,7 +269,7 @@ google-cloud-videointelligence==2.19.0
 google-cloud-vision==3.13.0
 google-cloud-workflows==1.21.0
 google-crc32c==1.8.0
-google-genai==1.68.0
+google-genai==1.69.0
 google-resumable-media==2.8.0
 googleapis-common-protos==1.73.1
 graphviz==0.21
@@ -497,7 +497,7 @@ reactivex==4.1.0
 redis==6.4.0
 redshift-connector==2.1.7
 referencing==0.37.0
-regex==2026.2.28
+regex==2026.3.32
 requests-file==3.0.1
 requests-kerberos==0.15.0
 requests-oauthlib==2.0.0
