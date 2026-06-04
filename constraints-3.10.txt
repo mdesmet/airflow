@@ -1,6 +1,6 @@
 
 #
-# This constraints file was automatically generated on 2026-06-04T09:32:41.866955
+# This constraints file was automatically generated on 2026-06-04T17:05:36.071079
 # via `uv pip install --resolution highest` for the "main" branch of Airflow.
 # This variant of constraints install uses the HEAD of the branch version for 'apache-airflow' but installs
 # the providers from PIP-released packages at the moment of the constraint generation.
@@ -165,6 +165,7 @@ click-didyoumean==0.3.1
 click-plugins==1.1.1.2
 click-repl==0.3.0
 click==8.4.1
+clickhouse-connect==1.1.1
 cloudpickle==3.1.1
 cohere==7.0.2
 colorama==0.4.6
@@ -596,7 +597,7 @@ uvloop==0.22.1
 validators==0.35.0
 vertica-python==1.4.0
 vine==5.1.0
-virtualenv==21.4.1
+virtualenv==21.4.2
 watchfiles==1.2.0
 watchtower==3.4.0
 wcwidth==0.7.0
