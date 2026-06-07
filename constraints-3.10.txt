@@ -1,6 +1,6 @@
 
 #
-# This constraints file was automatically generated on 2026-06-07T18:45:42.981276
+# This constraints file was automatically generated on 2026-06-07T20:59:11.673619
 # via `uv pip install --resolution highest` for the "main" branch of Airflow.
 # This variant of constraints install uses the HEAD of the branch version for 'apache-airflow' but installs
 # the providers from PIP-released packages at the moment of the constraint generation.
@@ -439,7 +439,7 @@ pbr==7.0.3
 pendulum==3.2.0
 pexpect==4.9.0
 pgvector==0.4.2
-pinecone==9.0.1
+pinecone==9.1.0
 pinotdb==9.1.2
 platformdirs==4.10.0
 pluggy==1.6.0
