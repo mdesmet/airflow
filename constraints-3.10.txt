@@ -1,6 +1,6 @@
 
 #
-# This constraints file was automatically generated on 2026-07-03T20:12:44.898239
+# This constraints file was automatically generated on 2026-07-04T02:13:29.043960
 # via `uv pip install --resolution highest` for the "main" branch of Airflow.
 # This variant of constraints install uses the HEAD of the branch version for 'apache-airflow' but installs
 # the providers from PIP-released packages at the moment of the constraint generation.
@@ -170,7 +170,7 @@ click-repl==0.3.0
 click==8.4.2
 clickhouse-connect==1.4.0
 cloudpickle==3.1.1
-cohere==7.0.4
+cohere==7.0.5
 colorama==0.4.6
 colorful==0.5.8
 colorlog==6.10.1
@@ -470,9 +470,9 @@ pybreaker==1.4.1
 pycountry==26.2.16
 pycparser==3.0
 pycryptodome==3.23.0
-pydantic-ai-slim==1.107.0
+pydantic-ai-slim==2.1.0
 pydantic-extra-types==2.11.1
-pydantic-graph==1.107.0
+pydantic-graph==2.1.0
 pydantic-settings==2.14.2
 pydantic==2.13.4
 pydantic_core==2.46.4
@@ -508,7 +508,7 @@ pyvespa==1.2.2
 pywinrm==0.5.0
 pyzmq==27.1.0
 qdrant-client==1.18.0
-ray==2.55.1
+ray==2.56.0
 reactivex==4.1.0
 redis==6.4.0
 redshift_connector==2.1.15
