@@ -1,6 +1,6 @@
 
 #
-# This constraints file was automatically generated on 2026-08-12T08:17:20.775518
+# This constraints file was automatically generated on 2026-08-13T14:19:15.228980
 # via `uv sync --resolution highest` for the "main" branch of Airflow.
 # This variant of constraints install just the 'bare' 'apache-airflow' package build from the HEAD of
 # the branch, without installing any of the providers.
